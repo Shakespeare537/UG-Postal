@@ -10,13 +10,8 @@ version '1.0'
 
 client_scripts {
     'shared/config.lua',
-    'client/main.lua',
+    'client/main.lua'
 }
-
---server_scripts {
---    'shared/config.lua',
---    'server/main.lua'
---}
 
 file(postalFile)
 postal_file(postalFile)
