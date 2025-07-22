@@ -23,6 +23,11 @@ Config.Locale = {
         time = 5000,
         type = "success"
     },
+    ["POSTAL_ARRIVE"] = {
+        text = "You are arrivet to Postal",
+        time = 5000,
+        type = "success"
+    },
     ["SETUP_POSTAL"] = {
         text = "You Setup Postal %s to your GPS",
         time = 5000,
@@ -37,7 +42,7 @@ Config.Locale = {
 
 Config.ClientNotification = function(msg, time, type)
     if Config.Framework == "newesx" or Config.Framework == "oldesx" then
-        TriggerEvent("esx:showNotification", msg, type)
+        TriggerEvent("esx:showNotification", type, msg)
     else
         TriggerEvent("QBCore:Notify", msg, type)
     end

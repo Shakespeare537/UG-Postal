@@ -21,7 +21,7 @@ RegisterCommand(Config.Command, function(_, args)
         if pBlip then
             RemoveBlip(pBlip.hndl)
             pBlip = nil
-            Config.ClientNotification(Config.Locale["POSTAL_REMOVED"].text,Config.Locale["POSTAL_REMOVED"].time,Config.Locale["POSTAL_REMOVED"].type)
+            Config.ClientNotification(Config.Locale["POSTAL_REMOVED"].text, Config.Locale["POSTAL_REMOVED"].time, Config.Locale["POSTAL_REMOVED"].type)
         end
         return
     end
@@ -38,19 +38,48 @@ RegisterCommand(Config.Command, function(_, args)
 
     if foundPostal then
         if pBlip then RemoveBlip(pBlip.hndl) end
-        local blip = AddBlipForCoord(foundPostal[1][1], foundPostal[1][2], 0.0)
-        pBlip = { hndl = blip, p = foundPostal }
-        SetBlipRoute(blip, true)
-        SetBlipSprite(blip, Config.Blip.sprite)
-        SetBlipColour(blip, Config.Blip.color)
-        SetBlipRouteColour(blip, Config.Blip.color)
-        BeginTextCommandSetBlipName('STRING')
-        AddTextComponentSubstringPlayerName(format(Config.Blip.text, pBlip.p.code))
-        EndTextCommandSetBlipName(blip)
-        Config.ClientNotification(Config.Locale["SETUP_POSTAL"].text:format(foundPostal.code),Config.Locale["SETUP_POSTAL"].time,Config.Locale["SETUP_POSTAL"].type)
 
+        local coords = vector3(foundPostal[1][1], foundPostal[1][2], 0.0)
+        local blip = AddBlipForCoord(coords)
+
+        pBlip = { hndl = blip, p = foundPostal }
+
+        SetBlipSprite(blip, Config.Blip.sprite or 8)
+        SetBlipColour(blip, Config.Blip.color or 3)
+        SetBlipScale(blip, 1.0)
+        SetBlipRoute(blip, true)
+        SetBlipRouteColour(blip, Config.Blip.color or 3)
+
+        BeginTextCommandSetBlipName("STRING")
+        AddTextComponentSubstringPlayerName(format(Config.Blip.text or "Cíl: %s", foundPostal.code))
+        EndTextCommandSetBlipName(blip)
+
+        Config.ClientNotification(
+            Config.Locale["SETUP_POSTAL"].text:format(foundPostal.code),
+            Config.Locale["SETUP_POSTAL"].time,
+            Config.Locale["SETUP_POSTAL"].type
+        )
+
+        CreateThread(function()
+            while pBlip do
+                Wait(1000)
+                local player = PlayerPedId()
+                local playerCoords = GetEntityCoords(player)
+                if #(playerCoords - coords) <= 25.0 then
+                    RemoveBlip(pBlip.hndl)
+                    pBlip = nil
+                    Config.ClientNotification(Config.Locale["POSTAL_ARRIVE"].text, Config.Locale["POSTAL_ARRIVE"].time, Config.Locale["POSTAL_ARRIVE"].type)
+                    break
+                end
+            end
+        end)
     else
-        Config.ClientNotification(Config.Locale["POSTAL_NOT_FOUND"].text,Config.Locale["POSTAL_NOT_FOUND"].time,Config.Locale["POSTAL_NOT_FOUND"].type)
+        Config.ClientNotification(
+            Config.Locale["POSTAL_NOT_FOUND"].text,
+            Config.Locale["POSTAL_NOT_FOUND"].time,
+            Config.Locale["POSTAL_NOT_FOUND"].type
+        )
     end
 end)
+
 
